@@ -1,0 +1,15 @@
+services:
+  yaci-cli:
+    image: bloxbean/yaci-cli:0.10.5
+    ports:
+      - 8080:8080
+      - 10000:10000
+    entrypoint: ["/app/yaci-cli", "create-node", "-o", "--start" ]
+
+    environment:
+      yaci_cli_mode: "native"
+      yaci_store_mode: "native"
+      conwayHardForkAtEpoch: 1
+      shiftStartTimeBehind: true
+      yaci_store_enabled: true
+      ogmios_enabled: false

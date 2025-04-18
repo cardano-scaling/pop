@@ -1,0 +1,29 @@
+name = "paolino/unique"
+version = "0.0.0"
+compiler = "v1.1.16"
+plutus = "v3"
+license = "Apache-2.0"
+description = "Aiken contracts for project 'paolino/unique'"
+
+[repository]
+user = "paolino"
+project = "unique"
+platform = "github"
+
+[[dependencies]]
+name = "aiken-lang/stdlib"
+version = "v2.2.0"
+source = "github"
+
+[[dependencies]]
+name = "aiken-lang/fuzz"
+version = "v2.1.1"
+source = "github"
+
+[[dependencies]]
+name= "aiken-lang/merkle-patricia-forestry"
+version = "v2.0.0"
+source = "github"
+
+
+[config]

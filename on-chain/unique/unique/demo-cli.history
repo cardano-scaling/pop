@@ -1,0 +1,177 @@
+info
+update
+info
+insert b 42
+update
+insert a 14
+boot
+info
+end
+info
+update
+insert h 8
+info
+insert g 7
+update
+info
+insert f 6
+info
+update
+retract 0
+update
+info
+update
+insert e 5
+info
+insert d 4
+insert c 3
+insert b 2
+insert a 1
+boot
+info
+retract 0
+info
+retract 0
+update
+updat
+info
+end
+insert c 65
+insert b 32
+info
+update
+info
+insert a 42
+info
+boot
+info
+end
+update
+info
+update
+info
+insert a 1
+info
+boot
+info
+end
+info
+update
+info
+delete a,b,d 5
+info
+update
+info
+insert a,b,d 5
+info
+insert a,b,c 4
+info
+retract 0
+update
+info
+delete a 1
+info
+retract 0
+info
+delete a 1
+info
+update
+info
+update
+info
+insert a 1
+request a,b 1
+info
+insert a,b 1
+inser a,b 1
+request a,b 1
+info
+boot
+info
+boot
+info
+end
+info
+topup
+boot
+topup
+boot
+info
+topup
+set-wallet 1
+topup 1
+info
+topup 3
+topup 0
+topup 3
+topup 2
+topup 1
+topup 0
+topup0
+topup
+toputp
+info
+end
+info
+update
+insert a 1
+info
+boot
+end
+boot
+end
+boot
+end
+info
+boot
+end
+boot
+end
+boot
+end
+boot
+end
+boot
+end
+boot
+end
+update
+insert a 1
+boot
+info
+end
+boot 
+end
+update
+insert a 1
+boot 
+end
+boot
+end
+boot
+end
+update
+insert a 1
+boot
+end
+update
+insert a 1
+boot
+end
+boot
+end
+boot
+end
+update
+insert a 1
+request a 1
+info
+boot
+info
+end
+retract 0
+info
+update
+info
+update
+insert a,d 3

@@ -1,0 +1,161 @@
+# shellcheck disable=SC2148
+# shellcheck disable=SC2155
+# shellcheck disable=SC1083
+
+# shellcheck disable=SC2121
+set shell := ["bash", "-cu"]
+
+build:
+    aiken build
+
+check:
+    aiken check
+
+credentials:
+    #!/usr/bin/env bash
+    if [ -f "me.sk" ]; then
+        echo "Error: me.sk is present. Aborting."
+        exit 1
+    else
+        npx tsx off_chain/credentials.ts
+    fi
+
+boot index:
+    #!/usr/bin/env bash
+    rm -rf tmp
+    boot_dir=tmp/boot
+    mkdir -p $boot_dir
+    npx tsx off_chain/boot.ts {{index}} # >$boot_dir/log.json
+    if jq -e 'has("error")' $boot_dir/log.json >/dev/null; then
+        echo "Error: $(jq -r '."error"' $boot_dir/log.json)"
+        exit 1
+    fi
+    just tx $boot_dir
+    echo "wallet-address: $(jq -r '."wallet-address"' $boot_dir/log.json)"
+    echo "cage-address: $(jq -r '."caging-address"' $boot_dir/log.json)"
+
+request addendum:
+    #!/usr/bin/env bash
+    boot_dir=tmp/boot
+    request_dir=tmp/request/$(date +%Y-%m-%dT%H:%M:%S)
+    mkdir -p "$request_dir"
+    token_id=$(jq -r '."token-id"' $boot_dir/log.json)
+    npx tsx off_chain/request.ts "$token_id" {{addendum}} >"$request_dir/log.json"
+    if jq -e 'has("error")' "$request_dir/log.json" >/dev/null; then
+        echo "Error: $(jq -r '."error"' "$request_dir/log.json")"
+        exit 1
+    fi
+    just tx "$request_dir"
+
+update:
+    #!/usr/bin/env bash
+    boot_dir=tmp/boot
+    update_dir=tmp/updates/$(date +%Y-%m-%dT%H:%M:%S)
+    mkdir -p "$update_dir"
+    token_id=$(jq -r '."token-id"' $boot_dir/log.json)
+    npx tsx off_chain/update.ts "$token_id" >"$update_dir/log.json"
+    if jq -e 'has("error")' "$update_dir/log.json" >/dev/null; then
+        echo "Error: $(jq -r '."error"' "$update_dir/log.json")"
+        exit 1
+    fi
+    just tx "$update_dir"
+
+end:
+    #!/usr/bin/env bash
+    boot_dir=tmp/boot
+    end_dir=tmp/end
+    mkdir -p "$end_dir"
+    token_id=$(jq -r '."token-id"' $boot_dir/log.json)
+    npx tsx off_chain/end.ts "$token_id" >"$end_dir/log.json"
+    if jq -e 'has("error")' "$end_dir/log.json" >/dev/null; then
+        echo "Error: $(jq -r '."error"' "$end_dir/log.json")"
+        exit 1
+    fi
+    just tx $end_dir
+
+lock threshold:
+    #!/usr/bin/env bash
+    boot_dir=tmp/boot
+    lock_dir=tmp/lock/$(date +%Y-%m-%dT%H:%M:%S)
+    mkdir -p "$lock_dir"
+    token_id=$(jq -r '."token-id"' $boot_dir/log.json)
+    signer_hash=$(jq -r '."signer-hash"' $boot_dir/log.json)
+    npx tsx off_chain/lock.ts "$token_id" {{threshold}} \
+        "0000" "$signer_hash" >"$lock_dir/log.json"
+    if jq -e 'has("error")' "$lock_dir/log.json" >/dev/null; then
+        echo "Error: $(jq -r '."error"' "$lock_dir/log.json")"
+        exit 1
+    fi
+    just tx "$lock_dir"
+    echo "threshold-address: $(jq -r '."threshold-address"' "$lock_dir"/log.json)"
+
+unlock threshold:
+    #!/usr/bin/env bash
+    boot_dir=tmp/boot
+    unlock_dir=tmp/unlock/$(date +%Y-%m-%dT%H:%M:%S)
+    mkdir -p "$unlock_dir"
+    token_id=$(jq -r '."token-id"' $boot_dir/log.json)
+    signer_hash=$(jq -r '."signer-hash"' $boot_dir/log.json)
+    npx tsx off_chain/unlock.ts "$token_id" {{threshold}} \
+         >"$unlock_dir/log.json"
+    if jq -e 'has("error")' "$unlock_dir/log.json" >/dev/null; then
+        echo "Error: $(jq -r '."error"' "$unlock_dir/log.json")"
+        exit 1
+    fi
+    just tx "$unlock_dir"
+tx tx_dir:
+    #!/usr/bin/env bash
+    tx_hex=$(jq -r '."tx-hex"' {{tx_dir}}/log.json)
+    jq --arg cbor "$tx_hex" '.cborHex = $cbor' transaction.template.json >{{tx_dir}}/tx-encoded.json
+    cardano-cli debug transaction view --tx-file {{tx_dir}}/tx-encoded.json | jq >{{tx_dir}}/tx.json
+
+links:
+    #!/usr/bin/env bash
+    updates_dir=tmp/updates
+    request_dir=tmp/request
+    boot_dir=tmp/boot
+    end_dir=tmp/end
+    echo "boot"
+    links=$(jq -n '{
+        boot: null,
+        token_id: null,
+        requests: [],
+        updates: [],
+        end: null
+    }')
+
+    if [ -f "$boot_dir/log.json" ]; then
+        boot_link="https://preview.cardanoscan.io/transaction/$(jq -r '."tx-hash"' $boot_dir/log.json)"
+        links=$(echo "$links" | jq --arg boot "$boot_link" '.boot = $boot')
+        cage_address_link="https://preview.cardanoscan.io/address/$(jq -r '."cage-address"' $boot_dir/log.json)"
+        links=$(echo "$links" | jq --arg cage_address "$cage_address_link" '.cage_address = $cage_address')
+        token_id_link="https://preview.cardanoscan.io/token/$(jq -r '."token-id"' $boot_dir/log.json)"
+        links=$(echo "$links" | jq --arg token_id "$token_id_link" '.token_id = $token_id')
+    else
+        echo "Error: $boot_dir/log.json not found."
+    fi
+    for request in "$request_dir"/*/log.json; do
+        request_link="https://preview.cardanoscan.io/transaction/$(jq -r '."tx-hash"' "$request")"
+        links=$(echo "$links" | jq --arg request "$request_link" '.requests += [$request]')
+    done
+    for update in "$updates_dir"/*/log.json; do
+        update_link="https://preview.cardanoscan.io/transaction/$(jq -r '."tx-hash"' "$update")"
+        links=$(echo "$links" | jq --arg update "$update_link" '.updates += [$update]')
+        # plutusDatas=$(jq -r '.requests[].output.plutusData' "$update" || echo "")
+        # if [ -z "$plutusDatas" ]; then
+        #     echo "Error: No plutusData found in $update."
+        #     continue
+        # fi
+        # echo "plutusDatas: $plutusDatas"
+        # while IFS= read -r plutusDatas; do
+        #     plutusData_link="https://preview.cardanoscan.io/datumInspector?datum=$plutusData"
+        #     links=$(echo "$links" | jq --arg plutusData "$plutusData_link" '.+= [$plutusData]')
+        # done <<< "$plutusDatas"
+    done
+
+    if [ -f "$end_dir/log.json" ]; then
+        end_link="https://preview.cardanoscan.io/transaction/$(jq -r '."tx-hash"' $end_dir/log.json)"
+        links=$(echo "$links" | jq --arg end "$end_link" '.end = $end')
+    fi
+
+    echo "$links" | jq
