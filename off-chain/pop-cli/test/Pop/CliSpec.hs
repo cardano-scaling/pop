@@ -11,6 +11,16 @@ spec = do
 
     pop args `shouldThrow` \e -> e == ExitSuccess
 
+  it "can request user registration" $ do
+    let args =
+          [ "register",
+            "--platform", "github"
+          , "--username", "bob"
+          , "--pubkeyhash", "0123456789"
+          ]
+
+    pop args `shouldReturn` RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
+
   it "can request antithesis run" $ do
     let args =
           [ "request",
