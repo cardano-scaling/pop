@@ -58,6 +58,11 @@ platformOption = strOption
       <> help "The platform to use"
   )
 
+parseRepository :: String -> Maybe Repository
+parseRepository repoStr = case break (== '/') repoStr of
+  (org, '/':proj) -> Just $ Repository org proj
+  _ -> Nothing
+
 repositoryOption :: Parser Repository
 repositoryOption = do
   repoStr <- strOption
@@ -66,9 +71,9 @@ repositoryOption = do
         <> metavar "ORGANIZATION/PROJECT"
         <> help "The repository in the format 'organization/project'"
     )
-  case break (== '/') repoStr of
-    (org, '/':proj) -> pure $ Repository org proj
-    _ -> fail "Repository must be in the format 'organization/project'"
+  case parseRepository repoStr of
+    Just repo -> pure repo
+    Nothing -> error "Repository must be in the format 'organization/project'"
 
 requestOptions :: Parser Command
 requestOptions =
