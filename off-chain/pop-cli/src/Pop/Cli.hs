@@ -42,6 +42,7 @@ data Command
   = Request {platform :: Platform, repository :: String, commit :: SHA1, directory :: String}
   | Register {platform :: Platform, username :: String, pubkeyhash :: String}
   | AddUser {platform :: Platform, repository :: String, role :: String, userIdentifier :: String}
+  | RemoveUser {platform :: Platform, repository :: String, userIdentifier :: String}
 
 requestOptions :: Parser Command
 requestOptions =
@@ -119,12 +120,34 @@ addUserOptions =
           <> help "The ID of the user to add, given as '<repository>/<username>'"
       )
 
+removeUserOptions :: Parser Command
+removeUserOptions =
+  RemoveUser
+    <$> strOption
+      ( long "platform"
+          <> short 'p'
+          <> metavar "PLATFORM"
+          <> help "The platform where the repository is hosted"
+      )
+    <*> strOption
+      ( long "repository"
+          <> short 'r'
+          <> metavar "REPOSITORY"
+          <> help "The repository URL or path"
+      )
+    <*> strOption
+      ( long "user-id"
+          <> metavar "USER-ID"
+          <> help "The ID of the user to remove, given as '<repository>/<username>'"
+      )
+
 commandParser :: Parser Command
 commandParser =
   subparser
     ( command "request" (info requestOptions (progDesc "Request a test on a specific platform"))
       <> command "register" (info registerOptions (progDesc "Register a new user"))
       <> command "add-user" (info addUserOptions (progDesc "Add a user to a repository"))
+      <> command "remove-user" (info removeUserOptions (progDesc "Remove a user from a repository"))
     )
 
 parseArgs :: [String] -> IO Command
@@ -150,6 +173,7 @@ pop args =
     Request {platform, repository, commit, directory} -> runTest platform repository commit directory
     Register {platform, username, pubkeyhash} -> registerUser platform username pubkeyhash
     AddUser {platform, repository, role, userIdentifier} -> addUserToRepo platform repository role userIdentifier
+    RemoveUser {platform, repository, userIdentifier} -> removeUserFromRepo platform repository userIdentifier
 
 runTest :: Platform -> String -> SHA1 -> String -> IO Result
 runTest _platform _repository _commit _directory = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
@@ -159,3 +183,6 @@ registerUser _platform _username _pubkeyhash = pure $ RequestOK {txId = "7db4844
 
 addUserToRepo :: Platform -> String -> String -> String -> IO Result
 addUserToRepo _platform _repository _role _userIdentifier = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
+
+removeUserFromRepo :: Platform -> String -> String -> IO Result
+removeUserFromRepo _platform _repository _userIdentifier = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
