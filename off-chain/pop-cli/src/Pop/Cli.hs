@@ -65,15 +65,12 @@ parseRepository repoStr = case break (== '/') repoStr of
 
 repositoryOption :: Parser Repository
 repositoryOption = do
-  repoStr <- strOption
+  option maybeReader
     ( long "repository"
         <> short 'r'
         <> metavar "ORGANIZATION/PROJECT"
         <> help "The repository in the format 'organization/project'"
     )
-  case parseRepository repoStr of
-    Just repo -> pure repo
-    Nothing -> error "Repository must be in the format 'organization/project'"
 
 requestOptions :: Parser Command
 requestOptions =
