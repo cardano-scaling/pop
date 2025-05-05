@@ -38,11 +38,17 @@ type SHA1 = String
 
 type TxId = String
 
+data Repository = Repository
+  { organization :: String
+  , project :: String
+  } deriving (Eq, Show, Generic)
+    deriving anyclass (ToJSON, FromJSON)
+
 data Command
-  = Request {platform :: Platform, repository :: String, commit :: SHA1, directory :: String}
+  = Request {platform :: Platform, repository :: Repository, commit :: SHA1, directory :: String}
   | Register {platform :: Platform, username :: String, pubkeyhash :: String}
-  | AddUser {platform :: Platform, repository :: String, role :: String, userIdentifier :: String}
-  | RemoveUser {platform :: Platform, repository :: String, userIdentifier :: String}
+  | AddUser {platform :: Platform, repository :: Repository, role :: String, userIdentifier :: String}
+  | RemoveUser {platform :: Platform, repository :: Repository, userIdentifier :: String}
 
 platformOption :: Parser Platform
 platformOption = strOption
@@ -52,13 +58,17 @@ platformOption = strOption
       <> help "The platform to use"
   )
 
-repositoryOption :: Parser String
-repositoryOption = strOption
-  ( long "repository"
-      <> short 'r'
-      <> metavar "REPOSITORY"
-      <> help "The repository URL or path"
-  )
+repositoryOption :: Parser Repository
+repositoryOption = do
+  repoStr <- strOption
+    ( long "repository"
+        <> short 'r'
+        <> metavar "ORGANIZATION/PROJECT"
+        <> help "The repository in the format 'organization/project'"
+    )
+  case break (== '/') repoStr of
+    (org, '/':proj) -> pure $ Repository org proj
+    _ -> fail "Repository must be in the format 'organization/project'"
 
 requestOptions :: Parser Command
 requestOptions =
@@ -156,14 +166,14 @@ pop args =
     AddUser {platform, repository, role, userIdentifier} -> addUserToRepo platform repository role userIdentifier
     RemoveUser {platform, repository, userIdentifier} -> removeUserFromRepo platform repository userIdentifier
 
-runTest :: Platform -> String -> SHA1 -> String -> IO Result
+runTest :: Platform -> Repository -> SHA1 -> String -> IO Result
 runTest _platform _repository _commit _directory = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
 
 registerUser :: Platform -> String -> String -> IO Result
 registerUser _platform _username _pubkeyhash = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
 
-addUserToRepo :: Platform -> String -> String -> String -> IO Result
+addUserToRepo :: Platform -> Repository -> String -> String -> IO Result
 addUserToRepo _platform _repository _role _userIdentifier = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
 
-removeUserFromRepo :: Platform -> String -> String -> IO Result
+removeUserFromRepo :: Platform -> Repository -> String -> IO Result
 removeUserFromRepo _platform _repository _userIdentifier = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
