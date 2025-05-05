@@ -16,7 +16,7 @@ spec = do
           [ "register",
             "--platform", "github"
           , "--username", "bob"
-          , "--pubkeyhash", "0123456789"
+          , "--pubkeyhash", "607a0d8a64616a407537edf0d9b59cf4cb509c556f6d2de4250ce15df2"
           ]
 
     pop args `shouldReturn` RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
