@@ -29,6 +29,21 @@ Use cases: Open Source project tracking
   * verifies the userid is known in DB
   * Verifies the role within the repo
 
+### Trigger Antithesis reviews
+
+* User wants to trigger AT run
+* Requests are posted on-chain with references to PR/artefacts
+* "Oracle" accepts (or not) the request and outputs test results
+* Later on we could lock some payment in smart contract to be released with test results
+* key: platform / user
+* value:
+  * repo URL
+  * commit Hash
+  * signature
+* oracle:
+  * verifies PR/commit
+  * trigger test run
+
 ### Certify a release
 
 * requester: a maintainer of the repo (identified user in the DB)
@@ -45,18 +60,3 @@ Use cases: Open Source project tracking
   * Verifies the commit hash ∃
 * NOTE:
   * enforce uniqueness of release (eg. immutable key/value) which goes against GH policy (eg. a release tarball can be changed)
-
-### Trigger Antithesis reviews
-
-* User wants to trigger AT run
-* Requests are posted on-chain with references to PR/artefacts
-* "Oracle" accepts (or not) the request and outputs test results
-* Later on we could lock some payment in smart contract to be released with test results
-* key: platform / user
-* value:
-  * repo URL
-  * commit Hash
-  * signature
-* oracle:
-  * verifies PR/commit
-  * trigger test run
