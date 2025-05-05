@@ -41,7 +41,7 @@ type TxId = String
 data Command
   = Request {platform :: Platform, repository :: String, commit :: SHA1, directory :: String}
   | Register {platform :: Platform, username :: String, pubkeyhash :: String}
-  | AddUser {platform :: Platform, repository :: String, role :: String, userId :: String}
+  | AddUser {platform :: Platform, repository :: String, role :: String, userIdentifier :: String}
 
 requestOptions :: Parser Command
 requestOptions =
@@ -116,7 +116,7 @@ addUserOptions =
     <*> strOption
       ( long "user-id"
           <> metavar "USER-ID"
-          <> help "The ID of the user to add"
+          <> help "The ID of the user to add, given as '<repository>/<username>'"
       )
 
 commandParser :: Parser Command
@@ -149,7 +149,7 @@ pop args =
   parseArgs args >>= \case
     Request {platform, repository, commit, directory} -> runTest platform repository commit directory
     Register {platform, username, pubkeyhash} -> registerUser platform username pubkeyhash
-    AddUser {platform, repository, role, userId} -> addUserToRepo platform repository role userId
+    AddUser {platform, repository, role, userIdentifier} -> addUserToRepo platform repository role userIdentifier
 
 runTest :: Platform -> String -> SHA1 -> String -> IO Result
 runTest _platform _repository _commit _directory = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
@@ -158,4 +158,4 @@ registerUser :: Platform -> String -> String -> IO Result
 registerUser _platform _username _pubkeyhash = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
 
 addUserToRepo :: Platform -> String -> String -> String -> IO Result
-addUserToRepo _platform _repository _role _userId = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
+addUserToRepo _platform _repository _role _userIdentifier = pure $ RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}

@@ -21,6 +21,17 @@ spec = do
 
     pop args `shouldReturn` RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
 
+  it "can request adding user to a project" $ do
+    let args =
+          [ "add-user",
+            "--platform", "github",
+            "--repository", "cardano-foundation/antithesis",
+            "--role", "maintainer",
+            "--user-id", "github/bob"
+          ]
+
+    pop args `shouldReturn` RequestOK {txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
+
   it "can request antithesis run" $ do
     let args =
           [ "request",
