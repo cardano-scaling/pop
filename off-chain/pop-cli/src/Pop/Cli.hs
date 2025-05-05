@@ -52,16 +52,19 @@ platformOption = strOption
       <> help "The platform to use"
   )
 
+repositoryOption :: Parser String
+repositoryOption = strOption
+  ( long "repository"
+      <> short 'r'
+      <> metavar "REPOSITORY"
+      <> help "The repository URL or path"
+  )
+
 requestOptions :: Parser Command
 requestOptions =
   Request
     <$> platformOption
-    <*> strOption
-      ( long "repository"
-          <> short 'r'
-          <> metavar "REPOSITORY"
-          <> help "The repository URL or path"
-      )
+    <*> repositoryOption
     <*> strOption
       ( long "commit"
           <> short 'c'
@@ -96,12 +99,7 @@ addUserOptions :: Parser Command
 addUserOptions =
   AddUser
     <$> platformOption
-    <*> strOption
-      ( long "repository"
-          <> short 'r'
-          <> metavar "REPOSITORY"
-          <> help "The repository URL or path"
-      )
+    <*> repositoryOption
     <*> strOption
       ( long "role"
           <> metavar "ROLE"
@@ -117,12 +115,7 @@ removeUserOptions :: Parser Command
 removeUserOptions =
   RemoveUser
     <$> platformOption
-    <*> strOption
-      ( long "repository"
-          <> short 'r'
-          <> metavar "REPOSITORY"
-          <> help "The repository URL or path"
-      )
+    <*> repositoryOption
     <*> strOption
       ( long "user-id"
           <> metavar "USER-ID"
