@@ -1,8 +1,8 @@
 module Main where
 
-import qualified MyLib (someFunc)
+import System.Environment(getArgs)
+import qualified Pop.Cli as Cli
 
 main :: IO ()
-main = do
-  putStrLn "Hello, Haskell!"
-  MyLib.someFunc
+main =
+  getArgs >>= Cli.pop >>= print

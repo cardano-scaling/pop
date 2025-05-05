@@ -44,6 +44,8 @@ Use cases: Open Source project tracking
   * verifies PR/commit
   * trigger test run
 
+Q: do we need a "registered" user here?
+
 ### Certify a release
 
 * requester: a maintainer of the repo (identified user in the DB)
