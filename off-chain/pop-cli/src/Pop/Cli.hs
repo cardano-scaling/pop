@@ -11,6 +11,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import GHC.Generics (Generic)
 import Options.Applicative
   ( Parser,
+    option, maybeReader,
     command,
     defaultPrefs,
     execParserPure,
@@ -64,17 +65,13 @@ parseRepository repoStr = case break (== '/') repoStr of
   _ -> Nothing
 
 repositoryOption :: Parser Repository
-repositoryOption = 
-  option (eitherReader parseRepoReader)
+repositoryOption =
+  option (maybeReader parseRepository)
     ( long "repository"
         <> short 'r'
         <> metavar "ORGANIZATION/PROJECT"
         <> help "The repository in the format 'organization/project'"
     )
-  where
-    parseRepoReader s = case parseRepository s of
-      Just repo -> Right repo
-      Nothing -> Left "Repository must be in the format 'organization/project'"
 
 requestOptions :: Parser Command
 requestOptions =
