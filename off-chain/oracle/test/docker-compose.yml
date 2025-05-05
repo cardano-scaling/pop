@@ -1,0 +1,5 @@
+services:
+  mpf:
+    image: mpf-service:0.0.1
+    ports:
+      - "8080:3000"

@@ -1,0 +1,14 @@
+build-image:
+    nix build ../merkle-patricia-forest#dockerImage
+    docker load < result
+
+start-service: build-image
+    docker compose up -d
+
+stop-service:
+    docker compose down
+
+smoke-test:
+  just start-service
+  ./smoke-tests/simple.sh || echo "smoke test failed"
+  just stop-service

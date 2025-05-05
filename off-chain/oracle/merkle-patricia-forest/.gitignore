@@ -1,0 +1,14 @@
+# env files
+.direnv
+
+# local db
+db
+
+# nodejs
+node_modules
+
+# editors
+.vscode
+
+# nix
+result

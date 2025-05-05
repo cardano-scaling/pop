@@ -1,0 +1,35 @@
+{
+  "name": "mpf-service",
+  "version": "1.0.0",
+  "description": "MP",
+  "main": "service.js",
+  "dependencies": {
+    "@aiken-lang/merkle-patricia-forestry": "^1.2.0",
+    "abstract-level": "^1.0.4",
+    "b4a": "^1.6.7",
+    "base64-js": "^1.5.1",
+    "blake2b": "^2.1.4",
+    "blake2b-wasm": "^2.4.0",
+    "browser-level": "^1.0.1",
+    "buffer": "^6.0.3",
+    "catering": "^2.1.1",
+    "classic-level": "^1.4.1",
+    "express": "^5.1.0",
+    "ieee754": "^1.2.1",
+    "is-buffer": "^2.0.5",
+    "level": "^8.0.1",
+    "level-supports": "^4.0.1",
+    "level-transcoder": "^1.0.1",
+    "module-error": "^1.0.2",
+    "nanoassert": "^2.0.0",
+    "napi-macros": "^2.2.2",
+    "node-gyp-build": "^4.8.4",
+    "queue-microtask": "^1.2.3",
+    "run-parallel-limit": "^1.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
