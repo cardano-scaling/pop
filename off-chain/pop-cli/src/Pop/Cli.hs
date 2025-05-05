@@ -44,15 +44,18 @@ data Command
   | AddUser {platform :: Platform, repository :: String, role :: String, userIdentifier :: String}
   | RemoveUser {platform :: Platform, repository :: String, userIdentifier :: String}
 
+platformOption :: Parser Platform
+platformOption = strOption
+  ( long "platform"
+      <> short 'p'
+      <> metavar "PLATFORM"
+      <> help "The platform to use"
+  )
+
 requestOptions :: Parser Command
 requestOptions =
   Request
-    <$> strOption
-      ( long "platform"
-          <> short 'p'
-          <> metavar "PLATFORM"
-          <> help "The platform to run the test on"
-      )
+    <$> platformOption
     <*> strOption
       ( long "repository"
           <> short 'r'
@@ -76,12 +79,7 @@ requestOptions =
 registerOptions :: Parser Command
 registerOptions =
   Register
-    <$> strOption
-      ( long "platform"
-          <> short 'p'
-          <> metavar "PLATFORM"
-          <> help "The platform to register on"
-      )
+    <$> platformOption
     <*> strOption
       ( long "username"
           <> short 'u'
@@ -97,12 +95,7 @@ registerOptions =
 addUserOptions :: Parser Command
 addUserOptions =
   AddUser
-    <$> strOption
-      ( long "platform"
-          <> short 'p'
-          <> metavar "PLATFORM"
-          <> help "The platform where the repository is hosted"
-      )
+    <$> platformOption
     <*> strOption
       ( long "repository"
           <> short 'r'
@@ -123,12 +116,7 @@ addUserOptions =
 removeUserOptions :: Parser Command
 removeUserOptions =
   RemoveUser
-    <$> strOption
-      ( long "platform"
-          <> short 'p'
-          <> metavar "PLATFORM"
-          <> help "The platform where the repository is hosted"
-      )
+    <$> platformOption
     <*> strOption
       ( long "repository"
           <> short 'r'
