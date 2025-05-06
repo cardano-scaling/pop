@@ -172,7 +172,7 @@ parseArgs args = handleParseResult $ execParserPure defaultPrefs opts args
             )
 
 data Runtime = Runtime
-    { httpLBS :: Request -> IO (Response BL.ByteString)
+    { httpCall :: Request -> IO (Response BL.ByteString)
     }
 
 data PopConfig = PopConfig
@@ -191,7 +191,7 @@ initPop :: IO PopConfig
 initPop = pure $ PopConfig
     { tokenId = "register"
     , runtime = Runtime
-        { httpLBS = Network.HTTP.Simple.httpLBS
+        { httpCall = Network.HTTP.Simple.httpLBS
         }
     }
 
@@ -222,7 +222,7 @@ registerUser runtime tokenId platform username pubkeyhash = do
             setRequestMethod "POST" $
                 setRequestBodyLBS (encode requestBody) initialRequest
 
-    response <- httpLBS runtime request
+    response <- httpCall runtime request
     let statusCode = getResponseStatusCode response
 
     if statusCode >= 200 && statusCode < 300
