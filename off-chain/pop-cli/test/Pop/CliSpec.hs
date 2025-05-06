@@ -1,8 +1,17 @@
 module Pop.CliSpec where
 
-import Pop.Cli (Result (..), pop)
+import Pop.Cli (Result (..), Runtime(..), pop)
 import System.Exit (ExitCode (ExitSuccess))
 import Test.Hspec (Spec, it, shouldReturn, shouldThrow)
+import Network.HTTP.Simple (Response, getResponseStatus, setResponseStatus)
+import Network.HTTP.Types.Status (status200)
+import qualified Data.ByteString.Lazy as BL
+
+-- | A fake runtime that always returns a 200 OK response
+fakeRuntime :: Runtime
+fakeRuntime = Runtime
+    { httpCall = \_ -> pure $ setResponseStatus status200 (error "This is a fake response")
+    }
 
 spec :: Spec
 spec = do
