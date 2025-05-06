@@ -181,17 +181,16 @@ pop :: Args -> IO Result
 pop args =
     parseArgs args >>= \case
         Request{platform, repository, commit, directory} -> runTest platform repository commit directory
-        Register{platform, username, pubkeyhash} -> registerUser platform username pubkeyhash
+        Register{platform, username, pubkeyhash} -> registerUser "register" platform username pubkeyhash
         AddUser{platform, repository, role, userIdentifier} -> addUserToRepo platform repository role userIdentifier
         RemoveUser{platform, repository, userIdentifier} -> removeUserFromRepo platform repository userIdentifier
 
 runTest :: Platform -> Repository -> SHA1 -> String -> IO Result
 runTest _platform _repository _commit _directory = pure $ RequestOK{txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
 
-registerUser :: Platform -> String -> String -> IO Result
-registerUser platform username pubkeyhash = do
-    let tokenId = "register" -- This could be a parameter or derived from other inputs
-        url = "http://localhost:8080/token/" ++ tokenId ++ "/request"
+registerUser :: String -> Platform -> String -> String -> IO Result
+registerUser tokenId platform username pubkeyhash = do
+    let url = "http://localhost:8080/token/" ++ tokenId ++ "/request"
         requestBody = object
             [ "key" .= [platform, username]
             , "value" .= pubkeyhash
