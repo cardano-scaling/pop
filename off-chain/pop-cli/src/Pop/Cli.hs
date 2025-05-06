@@ -183,7 +183,7 @@ data Result
     deriving anyclass (ToJSON, FromJSON)
 
 initPop :: IO PopConfig
-initPop = pure $ PopConfig { tokenId = "register" }
+initPop = pure $ PopConfig{tokenId = "register"}
 
 pop :: Args -> IO Result
 pop args = do
@@ -200,19 +200,21 @@ runTest _platform _repository _commit _directory = pure $ RequestOK{txId = "7db4
 registerUser :: String -> Platform -> String -> String -> IO Result
 registerUser tokenId platform username pubkeyhash = do
     let url = "http://localhost:8080/token/" ++ tokenId ++ "/request"
-        requestBody = object
-            [ "key" .= [platform, username]
-            , "value" .= pubkeyhash
-            , "operation" .= ("insert" :: String)
-            ]
-    
+        requestBody =
+            object
+                [ "key" .= [platform, username]
+                , "value" .= pubkeyhash
+                , "operation" .= ("insert" :: String)
+                ]
+
     initialRequest <- parseRequest url
-    let request = setRequestMethod "POST" 
-                $ setRequestBodyLBS (encode requestBody) initialRequest
-    
+    let request =
+            setRequestMethod "POST" $
+                setRequestBodyLBS (encode requestBody) initialRequest
+
     response <- httpLBS request
     let statusCode = getResponseStatusCode response
-    
+
     if statusCode >= 200 && statusCode < 300
         then do
             let responseBody = getResponseBody response
