@@ -4,5 +4,5 @@ import qualified Pop.Cli as Cli
 import System.Environment (getArgs)
 
 main :: IO ()
-main =
-    getArgs >>= Cli.pop >>= print
+main = do
+    getArgs >>= Cli.pop Cli.conduitRuntime >>= print

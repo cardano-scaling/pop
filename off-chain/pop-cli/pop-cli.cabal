@@ -70,6 +70,8 @@ library
     -- Other library packages from which modules are imported.
     build-depends:    aeson,
                       base ^>=4.18.2.1,
+                      bytestring,
+                      http-conduit,
                       optparse-applicative
 
     -- Directories containing source files.

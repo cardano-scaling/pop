@@ -191,15 +191,14 @@ initPop = pure $ PopConfig
     { tokenId = "register"
     }
 
-initRuntime :: IO Runtime
-initRuntime = pure $ Runtime
+conduitRuntime :: Runtime
+conduitRuntime = Runtime
     { httpCall = Network.HTTP.Simple.httpLBS
     }
 
-pop :: Args -> IO Result
-pop args = do
+pop :: Runtime -> Args -> IO Result
+pop runtime args = do
     config <- initPop
-    runtime <- initRuntime
     parseArgs args >>= \case
         Request{platform, repository, commit, directory} -> runTest platform repository commit directory
         Register{platform, username, pubkeyhash} -> registerUser runtime (tokenId config) platform username pubkeyhash
