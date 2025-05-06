@@ -171,17 +171,26 @@ parseArgs args = handleParseResult $ execParserPure defaultPrefs opts args
                 <> header "pop - A tool for managing Antithesis test runs using PoP"
             )
 
+data PopConfig = PopConfig
+    { tokenId :: String
+    }
+    deriving (Eq, Show)
+
 data Result
     = RequestOK {txId :: TxId}
     | RegisterOK {userId :: String}
     deriving (Eq, Show, Generic)
     deriving anyclass (ToJSON, FromJSON)
 
+initPop :: IO PopConfig
+initPop = pure $ PopConfig { tokenId = "register" }
+
 pop :: Args -> IO Result
-pop args =
+pop args = do
+    config <- initPop
     parseArgs args >>= \case
         Request{platform, repository, commit, directory} -> runTest platform repository commit directory
-        Register{platform, username, pubkeyhash} -> registerUser "register" platform username pubkeyhash
+        Register{platform, username, pubkeyhash} -> registerUser (tokenId config) platform username pubkeyhash
         AddUser{platform, repository, role, userIdentifier} -> addUserToRepo platform repository role userIdentifier
         RemoveUser{platform, repository, userIdentifier} -> removeUserFromRepo platform repository userIdentifier
 
