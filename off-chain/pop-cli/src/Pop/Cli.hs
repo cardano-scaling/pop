@@ -177,7 +177,6 @@ data Runtime = Runtime
 
 data PopConfig = PopConfig
     { tokenId :: String
-    , runtime :: Runtime
     }
     deriving (Eq, Show)
 
@@ -190,17 +189,20 @@ data Result
 initPop :: IO PopConfig
 initPop = pure $ PopConfig
     { tokenId = "register"
-    , runtime = Runtime
-        { httpCall = Network.HTTP.Simple.httpLBS
-        }
+    }
+
+initRuntime :: IO Runtime
+initRuntime = pure $ Runtime
+    { httpCall = Network.HTTP.Simple.httpLBS
     }
 
 pop :: Args -> IO Result
 pop args = do
     config <- initPop
+    runtime <- initRuntime
     parseArgs args >>= \case
         Request{platform, repository, commit, directory} -> runTest platform repository commit directory
-        Register{platform, username, pubkeyhash} -> registerUser (runtime config) (tokenId config) platform username pubkeyhash
+        Register{platform, username, pubkeyhash} -> registerUser runtime (tokenId config) platform username pubkeyhash
         AddUser{platform, repository, role, userIdentifier} -> addUserToRepo platform repository role userIdentifier
         RemoveUser{platform, repository, userIdentifier} -> removeUserFromRepo platform repository userIdentifier
 
