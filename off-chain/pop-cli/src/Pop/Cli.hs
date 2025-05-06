@@ -171,8 +171,13 @@ parseArgs args = handleParseResult $ execParserPure defaultPrefs opts args
                 <> header "pop - A tool for managing Antithesis test runs using PoP"
             )
 
+data Runtime = Runtime
+    { httpLBS :: Request -> IO (Response BL.ByteString)
+    }
+
 data PopConfig = PopConfig
     { tokenId :: String
+    , runtime :: Runtime
     }
     deriving (Eq, Show)
 
@@ -183,22 +188,27 @@ data Result
     deriving anyclass (ToJSON, FromJSON)
 
 initPop :: IO PopConfig
-initPop = pure $ PopConfig{tokenId = "register"}
+initPop = pure $ PopConfig
+    { tokenId = "register"
+    , runtime = Runtime
+        { httpLBS = Network.HTTP.Simple.httpLBS
+        }
+    }
 
 pop :: Args -> IO Result
 pop args = do
     config <- initPop
     parseArgs args >>= \case
         Request{platform, repository, commit, directory} -> runTest platform repository commit directory
-        Register{platform, username, pubkeyhash} -> registerUser (tokenId config) platform username pubkeyhash
+        Register{platform, username, pubkeyhash} -> registerUser (runtime config) (tokenId config) platform username pubkeyhash
         AddUser{platform, repository, role, userIdentifier} -> addUserToRepo platform repository role userIdentifier
         RemoveUser{platform, repository, userIdentifier} -> removeUserFromRepo platform repository userIdentifier
 
 runTest :: Platform -> Repository -> SHA1 -> String -> IO Result
 runTest _platform _repository _commit _directory = pure $ RequestOK{txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
 
-registerUser :: String -> Platform -> String -> String -> IO Result
-registerUser tokenId platform username pubkeyhash = do
+registerUser :: Runtime -> String -> Platform -> String -> String -> IO Result
+registerUser runtime tokenId platform username pubkeyhash = do
     let url = "http://localhost:8080/token/" ++ tokenId ++ "/request"
         requestBody =
             object
@@ -212,7 +222,7 @@ registerUser tokenId platform username pubkeyhash = do
             setRequestMethod "POST" $
                 setRequestBodyLBS (encode requestBody) initialRequest
 
-    response <- httpLBS request
+    response <- httpLBS runtime request
     let statusCode = getResponseStatusCode response
 
     if statusCode >= 200 && statusCode < 300
