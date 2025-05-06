@@ -130,7 +130,10 @@ test-suite pop-cli-test
     build-depends:
         base ^>=4.18.2.1,
         pop-cli,
-        hspec
+        hspec,
+        http-conduit,
+        http-types,
+        bytestring
 
     build-tool-depends:
         hspec-discover:hspec-discover

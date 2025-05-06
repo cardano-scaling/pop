@@ -10,8 +10,23 @@ import qualified Data.ByteString.Lazy as BL
 -- | A fake runtime that always returns a 200 OK response
 fakeRuntime :: Runtime
 fakeRuntime = Runtime
-    { httpCall = \_ -> pure $ setResponseStatus status200 (error "This is a fake response")
+    { httpCall = \_ -> pure $ createFakeResponse
     }
+  where
+    -- Create a fake HTTP response with status code 200
+    createFakeResponse :: Response BL.ByteString
+    createFakeResponse = setResponseStatus status200 emptyResponse
+    
+    -- Create an empty response with default values
+    emptyResponse :: Response BL.ByteString
+    emptyResponse = 
+      let defaultRequest = error "No request available"
+          defaultBody = BL.empty
+          defaultHeaders = []
+          defaultStatus = error "No status available"
+          defaultVersion = error "No version available"
+      in Network.HTTP.Simple.setResponseBody defaultBody $
+         Network.HTTP.Simple.defaultResponse
 
 spec :: Spec
 spec = do
