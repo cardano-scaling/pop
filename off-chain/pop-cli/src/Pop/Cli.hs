@@ -4,11 +4,23 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Pop.Cli where
 
-import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson (FromJSON, ToJSON, encode, object, (.=))
+import qualified Data.ByteString.Lazy as BL
 import GHC.Generics (Generic)
+import Network.HTTP.Simple (
+    Request,
+    Response,
+    getResponseBody,
+    getResponseStatusCode,
+    httpLBS,
+    parseRequest,
+    setRequestBodyLBS,
+    setRequestMethod,
+ )
 import Options.Applicative (
     Parser,
     command,
@@ -177,7 +189,28 @@ runTest :: Platform -> Repository -> SHA1 -> String -> IO Result
 runTest _platform _repository _commit _directory = pure $ RequestOK{txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
 
 registerUser :: Platform -> String -> String -> IO Result
-registerUser _platform _username _pubkeyhash = pure $ RequestOK{txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
+registerUser platform username pubkeyhash = do
+    let tokenId = "register" -- This could be a parameter or derived from other inputs
+        url = "http://localhost:8080/token/" ++ tokenId ++ "/request"
+        requestBody = object
+            [ "key" .= [platform, username]
+            , "value" .= pubkeyhash
+            , "operation" .= ("insert" :: String)
+            ]
+    
+    initialRequest <- parseRequest url
+    let request = setRequestMethod "POST" 
+                $ setRequestBodyLBS (encode requestBody) initialRequest
+    
+    response <- httpLBS request
+    let statusCode = getResponseStatusCode response
+    
+    if statusCode >= 200 && statusCode < 300
+        then do
+            let responseBody = getResponseBody response
+            -- In a real implementation, you would parse the response to get the txId
+            pure $ RequestOK{txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
+        else error $ "HTTP request failed with status code: " ++ show statusCode
 
 addUserToRepo :: Platform -> Repository -> String -> String -> IO Result
 addUserToRepo _platform _repository _role _userIdentifier = pure $ RequestOK{txId = "7db484475883c0b5a36a4b0d419b45fae0b64d770bc0b668d063d21d59489ad8"}
